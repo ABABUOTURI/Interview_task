@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:interview_task/Auth/SignInpage.dart';
 
 class CreateAccountPage extends StatelessWidget {
   @override
@@ -10,20 +11,20 @@ class CreateAccountPage extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            // Logo Section
+            
+
             Column(
               children: [
                 Image.asset(
-                  'assets/chat.png', // Ensure the image file exists in the assets folder
-                  height: 80,
+                  'assets/chat.png',
+                  height: 120,
                   
                 ),
-                const SizedBox(height: 10),
+                const SizedBox(height: 5),
               ],
             ),
-            const SizedBox(height: 30),
 
-            // Create Account Text
+          
             const Text(
               'Create an account',
               style: TextStyle(
@@ -34,7 +35,7 @@ class CreateAccountPage extends StatelessWidget {
             ),
             const SizedBox(height: 20),
 
-            // Form Fields
+        
             Column(
               children: [
                 _buildTextField('Name'),
@@ -52,11 +53,11 @@ class CreateAccountPage extends StatelessWidget {
             ),
             const SizedBox(height: 20),
 
-            // Terms and Conditions Checkbox
+            
             Row(
               children: [
                 Checkbox(
-                  value: false, // Add logic to handle checkbox state
+                  value: false,
                   onChanged: (bool? value) {},
                 ),
                 const Expanded(
@@ -93,7 +94,6 @@ class CreateAccountPage extends StatelessWidget {
             ),
             const SizedBox(height: 20),
 
-            // Create Account Button
             SizedBox(
               width: double.infinity,
               child: ElevatedButton(
@@ -113,9 +113,15 @@ class CreateAccountPage extends StatelessWidget {
             ),
             const SizedBox(height: 20),
 
-            // Sign In Link
-            GestureDetector(
-              onTap: () {}, // Add navigation logic
+       
+          GestureDetector(
+              onTap: () {
+                // Navigate to the SignInPage
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => SignInPage()),
+                );
+              },
               child: const Text.rich(
                 TextSpan(
                   children: [
@@ -134,6 +140,7 @@ class CreateAccountPage extends StatelessWidget {
                 ),
               ),
             ),
+
           ],
         ),
       ),
@@ -157,7 +164,7 @@ class CreateAccountPage extends StatelessWidget {
         suffixIcon: isPassword
             ? IconButton(
                 icon: const Icon(Icons.visibility, color: Colors.grey),
-                onPressed: () {}, // Add logic to toggle password visibility
+                onPressed: () {}, 
               )
             : null,
       ),

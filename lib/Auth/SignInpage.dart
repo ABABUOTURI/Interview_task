@@ -1,8 +1,67 @@
 import 'package:flutter/material.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:interview_task/Auth/createaccount.dart';
+import 'package:interview_task/Welcome.dart';
 
+class SignInPage extends StatefulWidget {
+  @override
+  _SignInPageState createState() => _SignInPageState();
+}
 
-class SignInPage extends StatelessWidget {
+class _SignInPageState extends State<SignInPage> {
+  final _auth = FirebaseAuth.instance;
+  final _emailController = TextEditingController();
+  final _passwordController = TextEditingController();
+  bool _isLoading = false;
+
+  Future<void> _signIn() async {
+    setState(() {
+      _isLoading = true;
+    });
+
+    try {
+      UserCredential userCredential = await _auth.signInWithEmailAndPassword(
+        email: _emailController.text.trim(),
+        password: _passwordController.text.trim(),
+      );
+
+      // Navigate to Welcome Page
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) =>
+              WelcomePage(email: userCredential.user!.email ?? ''),
+        ),
+      );
+    } on FirebaseAuthException catch (e) {
+      String errorMessage;
+      switch (e.code) {
+        case 'user-not-found':
+          errorMessage = 'No user found for this email.';
+          break;
+        case 'wrong-password':
+          errorMessage = 'Incorrect password.';
+          break;
+        default:
+          errorMessage = 'An error occurred. Please try again.';
+      }
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(errorMessage)),
+      );
+    } finally {
+      setState(() {
+        _isLoading = false;
+      });
+    }
+  }
+
+  @override
+  void dispose() {
+    _emailController.dispose();
+    _passwordController.dispose();
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -14,9 +73,8 @@ class SignInPage extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.center,
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              // Logo
               Column(
-                 children: [
+                children: [
                   Image.asset(
                     'assets/chat.png',
                     height: 120,
@@ -24,8 +82,7 @@ class SignInPage extends StatelessWidget {
                   const SizedBox(height: 5),
                 ],
               ),
-           
-              Text(
+              const Text(
                 'Sign in',
                 style: TextStyle(
                   fontSize: 24,
@@ -35,13 +92,13 @@ class SignInPage extends StatelessWidget {
                 textAlign: TextAlign.center,
               ),
               const SizedBox(height: 30),
-              
               TextField(
+                controller: _emailController,
                 decoration: InputDecoration(
                   filled: true,
-                  fillColor: Color(0xFFF5F5F5),
+                  fillColor: const Color(0xFFF5F5F5),
                   hintText: 'Email',
-                  hintStyle: TextStyle(color: Colors.grey),
+                  hintStyle: const TextStyle(color: Colors.grey),
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(10),
                     borderSide: BorderSide.none,
@@ -49,15 +106,15 @@ class SignInPage extends StatelessWidget {
                 ),
               ),
               const SizedBox(height: 15),
-              
               TextField(
+                controller: _passwordController,
                 obscureText: true,
                 decoration: InputDecoration(
                   filled: true,
-                  fillColor: Color(0xFFF5F5F5),
+                  fillColor: const Color(0xFFF5F5F5),
                   hintText: 'Password',
-                  hintStyle: TextStyle(color: Colors.grey),
-                  suffixIcon: Icon(Icons.visibility, color: Colors.grey),
+                  hintStyle: const TextStyle(color: Colors.grey),
+                  suffixIcon: const Icon(Icons.visibility, color: Colors.grey),
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(10),
                     borderSide: BorderSide.none,
@@ -65,12 +122,13 @@ class SignInPage extends StatelessWidget {
                 ),
               ),
               const SizedBox(height: 10),
-              
               Align(
                 alignment: Alignment.centerRight,
                 child: TextButton(
-                  onPressed: () {},
-                  child: Text(
+                  onPressed: () {
+                    // Add password recovery functionality here
+                  },
+                  child: const Text(
                     'Forgot Password?',
                     style: TextStyle(
                       color: Color(0xFF007BFF),
@@ -79,58 +137,53 @@ class SignInPage extends StatelessWidget {
                 ),
               ),
               const SizedBox(height: 20),
-             
-              ElevatedButton(
-                onPressed: () {},
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.black,
-                  padding: const EdgeInsets.symmetric(vertical: 15),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(10),
+              if (_isLoading)
+                const Center(child: CircularProgressIndicator())
+              else
+                ElevatedButton(
+                  onPressed: _signIn,
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.black,
+                    padding: const EdgeInsets.symmetric(vertical: 15),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                  ),
+                  child: const Text(
+                    'Sign in',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 16,
+                    ),
                   ),
                 ),
-                child: Text(
-                  'Sign in',
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 16,
-                  ),
-                ),
-              ),
               const SizedBox(height: 20),
-             
               Center(
                 child: GestureDetector(
                   onTap: () {
-                    // Navigate to the CreateAccountPage
                     Navigator.push(
                       context,
                       MaterialPageRoute(
-                          builder: (context) => CreateAccountPage()),
+                        builder: (context) => CreateAccountPage(),
+                      ),
                     );
                   },
-                  child: Text.rich(
+                  child: const Text.rich(
                     TextSpan(
                       children: [
                         TextSpan(
                           text: 'New User? ',
-                          style: TextStyle(
-                              color:
-                                  Colors.black), // Black color for "New User?"
+                          style: TextStyle(color: Colors.black),
                         ),
                         TextSpan(
                           text: 'Create an account',
-                          style: TextStyle(
-                            color: Color(
-                                0xFF007BFF), // Blue color for "Create an account"
-                          ),
+                          style: TextStyle(color: Color(0xFF007BFF)),
                         ),
                       ],
                     ),
                   ),
                 ),
-              )
-
+              ),
             ],
           ),
         ),
